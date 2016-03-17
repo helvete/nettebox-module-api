@@ -5,8 +5,8 @@ namespace Argo22\Modules\Core\Api\Account;
 class Collection extends \Argo22\Core\DataModel\Collection
 	implements \Argo22\Modules\Core\User\IPasswordRecovery
 {
-	/** @var \App\Models\AccountSubscription\Collection @inject */
-	var $accSubs;
+	/** @var \Argo22\Modules\Core\Api\GeoIp @inject */
+	var $geoIp;
 
 	/**
 	 * Create new mobile account
