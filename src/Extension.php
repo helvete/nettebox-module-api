@@ -3,7 +3,7 @@
  * Class AccountExtension
  *
  */
-namespace Argo22\Modules\Core\Account;
+namespace Argo22\Modules\Core\Api;
 
 use Nette\DI\CompilerExtension;
 
