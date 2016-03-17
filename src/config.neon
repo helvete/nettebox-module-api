@@ -1,0 +1,14 @@
+services:
+
+	- Argo22\Modules\Core\Email\IModelFactory
+
+	emailCollection:
+		factory: Argo22\Modules\Core\Email\Collection('email', @Argo22\Modules\Core\Email\IModelFactory)
+
+	baseGrid:
+		factory: Argo22\Modules\Core\Controls\BaseGrid(\Nette\Application\IPresenter, 'list')
+		inject: yes
+
+	tabControl:
+		factory: Argo22\Modules\Core\Controls\TabControl(\Nette\Application\IPresenter, 'tabControl')
+		inject: yes
