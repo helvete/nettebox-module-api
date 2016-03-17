@@ -1,9 +1,8 @@
 services:
-	authenticator: Argo22\Modules\Core\Api\ApiAuthenticator
+	authenticator: Argo22\Modules\Core\Api\Account\ApiAuthenticator
 	geoIp: Argo22\Modules\Core\Api\GeoIp
 
 	- Argo22\Modules\Core\Api\Account\Validator
-	- Argo22\Modules\Core\Api\Account\ApiAuthenticator
 	- Argo22\Modules\Core\Api\ApiVersion(%api_version%)
 
 	- Argo22\Modules\Core\Api\Account\IModelFactory
@@ -17,3 +16,7 @@ services:
 		factory: Argo22\Modules\Core\Api\AccountNotification\Collection('account_notification', @Argo22\Modules\Core\Api\AccountNotification\IModelFactory)
 
 	passwordRecovery: Argo22\Modules\Core\User\PasswordRecovery(@Argo22\Modules\Core\Api\Account\Collection)
+
+	apiSession:
+		class: Argo22\Modules\Core\Api\Account\Session
+		inject: yes
