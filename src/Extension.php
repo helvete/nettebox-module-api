@@ -1,9 +1,9 @@
 <?php
 /**
- * Class EmailExtension
+ * Class AccountExtension
  *
  */
-namespace Argo22\Modules\Core\Email;
+namespace Argo22\Modules\Core\Account;
 
 use Nette\DI\CompilerExtension;
 

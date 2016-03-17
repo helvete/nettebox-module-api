@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Account;
+namespace Argo22\Modules\Core\Account;
 
 class Model extends \Argo22\Core\DataModel\Model {
 

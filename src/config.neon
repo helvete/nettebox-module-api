@@ -1,14 +1,12 @@
 services:
+	authenticator: Argo22\Modules\Core\Account\ApiAuthenticator
 
-	- Argo22\Modules\Core\Email\IModelFactory
+	- Argo22\Modules\Core\Account\IModelFactory
+	- Argo22\Modules\Core\AccountNotification\IModelFactory
 
-	emailCollection:
-		factory: Argo22\Modules\Core\Email\Collection('email', @Argo22\Modules\Core\Email\IModelFactory)
+	accountCollection:
+		factory: Argo22\Modules\Core\Account\Collection('account', @Argo22\Modules\Core\Account\IModelFactory)
+	devicesCollection:
+		factory: Argo22\Modules\Core\AccountNotification\Collection('account_notification', @Argo22\Modules\Core\AccountNotification\IModelFactory)
 
-	baseGrid:
-		factory: Argo22\Modules\Core\Controls\BaseGrid(\Nette\Application\IPresenter, 'list')
-		inject: yes
-
-	tabControl:
-		factory: Argo22\Modules\Core\Controls\TabControl(\Nette\Application\IPresenter, 'tabControl')
-		inject: yes
+	passwordRecovery: Argo22\Modules\Core\User\PasswordRecovery(@Argo22\Modules\Core\Account\Collection)

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\AccountNotification;
+namespace Argo22\Modules\Core\AccountNotification;
 
 /**
  * Interface for automatically generated factory

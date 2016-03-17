@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Account;
+namespace Argo22\Modules\Core\Account;
 
 /**
  * Interface for automatically generated factory

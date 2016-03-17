@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Account;
+namespace Argo22\Modules\Core\Account;
 
 class Collection extends \Argo22\Core\DataModel\Collection
 	implements \Argo22\Modules\Core\User\IPasswordRecovery
@@ -57,7 +57,7 @@ class Collection extends \Argo22\Core\DataModel\Collection
 	 * Required by IPasswordRecovery
 	 *
 	 * @param  string								$email
-	 * @return Argo22\Modules\Core\User\Model|false
+	 * @return Argo22\Modules\Core\Account\Model|false
 	 */
 	public function getByEmail($email)
 	{
@@ -70,7 +70,7 @@ class Collection extends \Argo22\Core\DataModel\Collection
 	 * Required by IPasswordRecovery
 	 *
 	 * @param  string								$hash
-	 * @return Argo22\Modules\Core\User\Model|false
+	 * @return Argo22\Modules\Core\Account\Model|false
 	 */
 	public function getByHash($hash)
 	{
@@ -154,7 +154,7 @@ class Collection extends \Argo22\Core\DataModel\Collection
 	/**
 	 * Throw exception in case there is no record on the input
 	 *
-	 * @param  Argo22\Modules\Core\User\Model|false	$item
+	 * @param  Argo22\Modules\Core\Account\Model|false	$item
 	 * @return string
 	 */
 	private function _handleAbsence($item)
@@ -168,7 +168,7 @@ class Collection extends \Argo22\Core\DataModel\Collection
 	/**
 	 * Get and store unique referral code for a user
 	 *
-	 * @param  \Argo22\Modules\Core\User\Model	$user
+	 * @param  \Argo22\Modules\Core\Account\Model	$user
 	 * @return void
 	 */
 	protected function _generateReferralCode($account)
