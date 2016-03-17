@@ -1,23 +1,20 @@
 <?php
 
-namespace Argo22\Modules\Core\Account;
+namespace Argo22\Modules\Core\Api\Account;
 
 class Collection extends \Argo22\Core\DataModel\Collection
 	implements \Argo22\Modules\Core\User\IPasswordRecovery
 {
 	/** @var \App\Models\AccountSubscription\Collection @inject */
 	var $accSubs;
-	/** @var \App\Services\GeoIp @inject */
-	var $geoIp;
 
 	/**
 	 * Create new mobile account
 	 *
 	 * @param  array	$values
-	 * @param  bool		$free60
 	 * @return model
 	 */
-	public function createNew($values, $free60 = false)
+	public function createNew($values)
 	{
 		// store referring user if present and possible
 		if (!empty($values['referral'])) {
@@ -28,8 +25,6 @@ class Collection extends \Argo22\Core\DataModel\Collection
 				$values['inviter_account_id'] = $referrer->id;
 			}
 		}
-		$device = !isset($values['device'])?:$values['device'];
-		unset($values['device']);
 		unset($values['referral']);
 
 		$values['created'] = new \DateTime();
@@ -42,11 +37,6 @@ class Collection extends \Argo22\Core\DataModel\Collection
 		$this->_generateReferralCode($model);
 		// set password by dedicated method, so it's hashed before its first use
 		$model->setPassword($values['password']);
-
-		// set free subscription - anniversary 60
-		if ($free60) {
-			$this->accSubs->setFree($model->id, $values['country_code'], $device);
-		}
 
 		return $model;
 	}

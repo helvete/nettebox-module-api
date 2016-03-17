@@ -1,12 +1,15 @@
 services:
-	authenticator: Argo22\Modules\Core\Account\ApiAuthenticator
+	authenticator: Argo22\Modules\Core\Api\ApiAuthenticator
+	geoIp: Argo22\Modules\Core\Api\GeoIp
 
-	- Argo22\Modules\Core\Account\IModelFactory
-	- Argo22\Modules\Core\AccountNotification\IModelFactory
+	- Argo22\Modules\Core\Api\Account\IModelFactory
+	accountsCollection:
+		class: Argo22\Modules\Core\Api\Account\Collection('account', @Argo22\Modules\Core\Api\Account\IModelFactory)
+		setup:
+			- $geoIp( @Argo22\Modules\Core\Api\GeoIp )
 
-	accountCollection:
-		factory: Argo22\Modules\Core\Account\Collection('account', @Argo22\Modules\Core\Account\IModelFactory)
+	- Argo22\Modules\Core\Api\AccountNotification\IModelFactory
 	devicesCollection:
-		factory: Argo22\Modules\Core\AccountNotification\Collection('account_notification', @Argo22\Modules\Core\AccountNotification\IModelFactory)
+		factory: Argo22\Modules\Core\Api\AccountNotification\Collection('account_notification', @Argo22\Modules\Core\Api\AccountNotification\IModelFactory)
 
-	passwordRecovery: Argo22\Modules\Core\User\PasswordRecovery(@Argo22\Modules\Core\Account\Collection)
+	passwordRecovery: Argo22\Modules\Core\User\PasswordRecovery(@Argo22\Modules\Core\Api\Account\Collection)
