@@ -2,6 +2,10 @@ services:
 	authenticator: Argo22\Modules\Core\Api\ApiAuthenticator
 	geoIp: Argo22\Modules\Core\Api\GeoIp
 
+	- Argo22\Modules\Core\Api\Account\Validator
+	- Argo22\Modules\Core\Api\Account\ApiAuthenticator
+	- Argo22\Modules\Core\Api\ApiVersion(%api_version%)
+
 	- Argo22\Modules\Core\Api\Account\IModelFactory
 	accountsCollection:
 		class: Argo22\Modules\Core\Api\Account\Collection('account', @Argo22\Modules\Core\Api\Account\IModelFactory)
