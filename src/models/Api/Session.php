@@ -43,7 +43,7 @@ class Session extends \Nette\Object {
 	/**
 	 * Getter for user
 	 *
-	 * @return \App\Models\Account\Model|null
+	 * @return Model|null
 	 */
 	public function getUser()
 	{
@@ -93,7 +93,7 @@ class Session extends \Nette\Object {
 	 * in read-only $this->user
 	 *
 	 * @param  string $token
-	 * @return \Argo22\Modules\Core\User\Model|null
+	 * @return Model|null
 	 */
 	public function loadFrom($token)
 	{

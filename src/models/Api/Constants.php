@@ -5,7 +5,7 @@ namespace Argo22\Modules\Core\Api;
 /**
  * Utility class for holding API related constants
  */
-final class Constants  {
+class Constants  {
 	// custom RPC exception codes
 	const RPC_ERROR_MISSING_TOKEN = -32000;
 	const RPC_ERROR_INVALID_TOKEN = -32001;
