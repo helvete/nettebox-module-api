@@ -4,8 +4,8 @@ namespace Argo22\Modules\Core\Api\Account;
 
 use \Lightbulb\Json\Rpc2;
 use \Nette\Security;
-use \Argo22\Modules\Core\User\Validator;
 use \Nette\Utils\Validators;
+use \Argo22\Modules\Core\Api\Constants;
 
 /**
  * Class for handling API requests
@@ -13,13 +13,13 @@ use \Nette\Utils\Validators;
  * WARNING: these methods are callable directly from RPC server!
  */
 class User extends \Nette\Object {
-	/** @var \Argo22\Modules\Core\Api\Account\ApiAuthenticator @inject **/
+	/** @var ApiAuthenticator @inject **/
 	var $authenticator;
-	/** @var \Argo22\Modules\Core\Api\Account\Validator @inject **/
+	/** @var Validator @inject **/
 	var $validator;
-	/** @var \Argo22\Modules\Core\Api\Account\Collection @inject **/
+	/** @var Collection @inject **/
 	var $collection;
-	/** @var \Argo22\Modules\Core\Api\Account\Session @inject **/
+	/** @var Session @inject **/
 	var $apiSession;
 	/** @var \Argo22\Modules\Core\Api\AccountNotification\Collection @inject **/
 	var $accountNotification;
@@ -27,8 +27,6 @@ class User extends \Nette\Object {
 	var $emailCollection;
 	/** @var \Argo22\Modules\Core\User\PasswordRecovery @inject **/
 	var $recovery;
-	/** @var \App\Services\Config @inject **/
-	var $config;
 
 	/**
 	 * Returns login of the user
@@ -93,7 +91,7 @@ class User extends \Nette\Object {
 		self::_checkInput($password, $facebook_id);
 
 		// registering using facebook ID, setting 'random' long password
-		$password = is_null($password)
+		$values['password'] = $password = is_null($password)
 			? md5(time())
 			: $password;
 
@@ -161,30 +159,13 @@ class User extends \Nette\Object {
 				Constants::RPC_ERROR_IDENTITY_NOT_FOUND
 			);
 		}
-
-		// set validity from config or use one day as failsafe default
-		$expiration = ($this->config->passwdRecoveryExpirationSeconds !== false
-			&& $this->config->passwdRecoveryExpirationSeconds > 0)
-				? $this->config->passwdRecoveryExpirationSeconds
-				: 86400;
+		$expiration = $this->_getPassRecoExpirationSeconds();
 		$recoveryHash = $this->recovery->createRequest($email, $expiration);
 
-		// compile email properties
-		$toInsert = array(
-			'subject' => $this->config->passwdRecoveryEmailSubject .': '. $email,
-			'body' => $this->_prepareRecoveryEmailTemplate($account, $recoveryHash),
-			'created' => date('Y-m-d H:i:s'),
-			'recipient_email' => $email,
-			'bcc' => implode(',', $this->config->emailBcc),
-			'sender_name' => $this->config->appMailerFromName,
-			'sender_email' => $this->config->appMailerFromEmail,
-			'purpose_flag' => 'recovery',
-			'account_id' => $account->id,
-			'is_html' => true,
-		);
+		$email = $this->_assemblePasswordRecoveryEmail($account, $recoveryHash);
 
 		// insert account recovery email
-		$this->emailCollection->insert($toInsert);
+		$this->emailCollection->insert($email);
 
 		return array(
 			'message' => 'Email with new password has been sent',
@@ -193,30 +174,40 @@ class User extends \Nette\Object {
 
 
 	/**
-	 * Prepare password recovery email template
+	 * Set expiration time of PR request
 	 *
-	 * @param  Argo22\Modules\Core\User\Model			$user
+	 * @return int
+	 */
+	protected function _getPassRecoExpirationSeconds()
+	{
+		// week-long validity as default
+		return 604800;
+	}
+
+
+	/**
+	 * Assemble pass reco email
+	 *
+	 * @param  Argo22\Modules\Core\Account\Model		$account
 	 * @param  string									$hash
 	 * @return Nette\Bridges\ApplicationLatte\Template
 	 */
-	private function _prepareRecoveryEmailTemplate($user, $hash)
+	protected function _assemblePasswordRecoveryEmail($account, $hash)
 	{
-		// init template and fill tpl vars
-		$templatePath = WWW_DIR . "/../app/templates/"
-			. $this->config->passwdRecoveryEmailTpl;
-		$template = $this->templateFactory->createTemplate();
-		$template->setFile($templatePath);
-		$template->user = $user;
-		$template->baseUrl = $this->config->cliUsageBaseUrl;
-		$template->recoveryUrl = $this->config->cliUsageBaseUrl
-			. "password-recovery/set/$hash";
-		$template->supportEmail = $this->config->supportEmail;
-
-		// add user name if present
-		$template->userName = $user->name;
-
-		// return template contents
-		return $template;
+		// compile email properties
+		return array(
+			'subject' => 'Password recovery request for: '. $account->email,
+			'body' => "Visit "
+				. "https://{$_SERVER['HTTP_HOST']}/password-recovery/set/{$hash}"
+				. " to reset your password.",
+			'created' => date('Y-m-d H:i:s'),
+			'recipient_email' => $account->email,
+			'sender_name' => "Password recovery system",
+			'sender_email' => "no-reply@password-recovery.com",
+			'purpose_flag' => 'recovery',
+			'account_id' => $account->id,
+			'is_html' => false,
+		);
 	}
 
 
@@ -317,30 +308,9 @@ class User extends \Nette\Object {
 			'hometown',
 			'avatar_url',
 			'facebook_connected',
-		));
-		$subs = $this->subscriptionsCollection->getOneFiltered('end_date',
-			array(
-				'account_id' => $account->id,
-				'subscription.code'
-					=> \App\Models\Subscription\Model::TYPE_ANNIVERSARY_FREE_60,
-			)
-		);
-		$left = null;
-		if ($subs) {
-			$now = new \DateTime();
-			$interval = $now->diff($subs->end_date);
-			$left = (int)$interval->format('%r%a');
-			// count today as granted
-			$left++;
-		}
-
-		$subscriptions = array(
-			'referral_code' => $account->referral_code,
-			'subscription_days_left' => $left,
-			'available_credits' => $this->creditsCollection->hasCredits($account->id),
-			'referral_link' => $this->config->cliUsageBaseUrl
-				. "account/create/$account->referral_code",
-		);
+			'referral_code',
+		)) + array('referral_link'
+			=> $this->_getBaseUrl() . "/account/create/$account->referral_code");
 
 		// format date only if present
 		$detail['date_of_birth'] = empty($detail['date_of_birth'])
@@ -350,7 +320,7 @@ class User extends \Nette\Object {
 		// return full absolute image URL, only if present
 		$detail['avatar_url'] = empty($detail['avatar_url'])
 			? null
-			: rtrim($this->config->cliUsageBaseUrl, "/") . $detail['avatar_url'];
+			: $this->_getBaseUrl() . $detail['avatar_url'];
 
 		if (!is_null($device_hash)) {
 			$device = $this->accountNotification->getOneFiltered(
@@ -364,47 +334,21 @@ class User extends \Nette\Object {
 			}
 		}
 
-		return $detail + $subscriptions;
+		return $detail;
 	}
 
 
 	/**
-	 * Get credit history
+	 * Get application-wide base URL
 	 *
-	 * @return array
+	 * @return string
 	 */
-	public function getcredithistory()
+	protected function _getBaseUrl()
 	{
-		// get the logged account
-		$account = $this->apiSession->getUser();
-		if (!$account) {
-			throw new Rpc2\RPCError(
-				'Credit history not allowed for visitors',
-				Constants::RPC_ERROR_NOT_ALLOWED_FOR_VISITORS
-			);
-		}
-
-		$return = array();
-		foreach ($this->creditsCollection->getUserTransactions($account->id) as $record) {
-			$data = $record->getAsArray();
-			$data['created'] = $data['created']->format('Y-m-d H:i:s');
-			$data['user'] = null;
-			if (isset($data['related_account_ID'])) {
-				$detail = $this->collection->getOneFiltered('name, email',
-					array('id' => $data['related_account_ID'])
-				);
-				if ($detail) {
-					$data['user'] = is_null($detail->name)
-						? $detail->email
-						: $detail->name;
-				}
-
-			}
-			unset($data['related_account_ID']);
-			$return[] = $data;
-		}
-
-		return $return;
+		return (!empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'], 'off')
+			? 'https://'
+			: 'http://')
+				. $_SERVER['HTTP_HOST'];
 	}
 
 
@@ -515,7 +459,7 @@ class User extends \Nette\Object {
 	 * @param  string	$avatar
 	 * @return string
 	 */
-	private function _processAvatar($userId, $avatar)
+	protected function _processAvatar($userId, $avatar)
 	{
 		if (preg_match('/^http/', $avatar)) {
 			$imgString = file_get_contents($avatar);
@@ -530,7 +474,8 @@ class User extends \Nette\Object {
 		}
 		$meta = array('name' => 'user', 'id' => $userId);
 
-		return \App\Services\ImageHandler::saveImg($imgString, $meta);
+		return \Argo22\Modules\Core\Services\ImageHandler
+			::saveImg($imgString, $meta);
 	}
 
 
@@ -583,7 +528,7 @@ class User extends \Nette\Object {
 		// attempt to invite self
 		if ($account->id === $validCode->id) {
 			throw new Rpc2\RPCError(
-				'A account can not invite self',
+				'An account can not invite self',
 				Constants::RPC_ERROR_INVALID_PARAMS_FORMAT
 			);
 		}

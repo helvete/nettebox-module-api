@@ -17,6 +17,13 @@ services:
 
 	passwordRecovery: Argo22\Modules\Core\User\PasswordRecovery(@Argo22\Modules\Core\Api\Account\Collection)
 
+
+# API models
+
 	apiSession:
 		class: Argo22\Modules\Core\Api\Account\Session
+		inject: yes
+
+	apiUser:
+		class: Argo22\Modules\Core\Api\Account\User
 		inject: yes
