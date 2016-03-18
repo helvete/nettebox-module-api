@@ -197,9 +197,8 @@ class User extends \Nette\Object {
 		// compile email properties
 		return array(
 			'subject' => 'Password recovery request for: '. $account->email,
-			'body' => "Visit "
-				. "https://{$_SERVER['HTTP_HOST']}/password-recovery/set/{$hash}"
-				. " to reset your password.",
+			'body' => "Visit " . $this->_getBaseUrl()
+				."/password-recovery/set/{$hash} to reset your password.",
 			'created' => date('Y-m-d H:i:s'),
 			'recipient_email' => $account->email,
 			'sender_name' => "Password recovery system",
