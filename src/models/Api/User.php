@@ -27,6 +27,8 @@ class User extends \Nette\Object {
 	var $emailCollection;
 	/** @var \Argo22\Modules\Core\User\PasswordRecovery @inject **/
 	var $recovery;
+	/** @var \Nette\Application\LinkGenerator @inject **/
+	var $linkGenerator;
 
 	/**
 	 * Returns login of the user
@@ -197,8 +199,9 @@ class User extends \Nette\Object {
 		// compile email properties
 		return array(
 			'subject' => 'Password recovery request for: '. $account->email,
-			'body' => "Visit " . $this->_getBaseUrl()
-				."/password-recovery/set/{$hash} to reset your password.",
+			'body' => "Visit "
+				. $this->linkGenerator->link('PasswordRecovery:set', [$hash])
+				. " to reset your password.",
 			'created' => date('Y-m-d H:i:s'),
 			'recipient_email' => $account->email,
 			'sender_name' => "Password recovery system",
@@ -309,7 +312,8 @@ class User extends \Nette\Object {
 			'facebook_connected',
 			'referral_code',
 		)) + array('referral_link'
-			=> $this->_getBaseUrl() . "/account/create/$account->referral_code");
+			=> $this->linkGenerator
+				->link('Account:create', [$account->referral_code]));
 
 		// format date only if present
 		$detail['date_of_birth'] = empty($detail['date_of_birth'])
@@ -342,12 +346,12 @@ class User extends \Nette\Object {
 	 *
 	 * @return string
 	 */
-	protected function _getBaseUrl()
+	protected function _getBaseUrl($trim = true)
 	{
 		return (!empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'], 'off')
 			? 'https://'
 			: 'http://')
-				. $_SERVER['HTTP_HOST'];
+				. $_SERVER['HTTP_HOST'] . ($trim ? '' : '/');
 	}
 
 
