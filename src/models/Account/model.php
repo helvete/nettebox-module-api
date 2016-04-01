@@ -144,4 +144,30 @@ class Model extends \Argo22\Core\DataModel\Model {
 	{
 		return md5($this->id . $this->created->format('Y#m#d#H#i#s'));
 	}
+
+
+	/**
+	 * Helper function for grids, etc.
+	 *
+	 * @return array
+	 */
+	public function getPrintState()
+	{
+		return self::getPrintStates()[$this->state];
+	}
+
+
+	/**
+	 * Helper function for grids, etc.
+	 *
+	 * @return array
+	 */
+	static public function getPrintStates()
+	{
+		return array(
+			self::STATE_NEW => 'New',
+			self::STATE_WAITING_FOR_ACTIVATION => 'Waiting for activation',
+			self::STATE_ACTIVE => 'Active',
+		);
+	}
 }
