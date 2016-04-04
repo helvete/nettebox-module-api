@@ -26,7 +26,6 @@ class Presenter extends Nette\Application\UI\Presenter
 
 	/**
 	 * Debug method for logging issued DB queries. Useful for debugging API
-	 * TODO: incorporate to log based on environment
 	 */
 	public function logQuery(Nette\Database\Connection $connection, $result) {
 		$soubor = fopen("../log/queryLog", "a");
@@ -47,6 +46,10 @@ class Presenter extends Nette\Application\UI\Presenter
 		$this->_version = $version;
 
 		\Nette\Diagnostics\Debugger::$bar = false;
+		if (!$this->context->parameters['productionMode']) {
+			$this->getContext()->getByType('\Nette\Database\Connection')
+				->onQuery[] = array($this, 'logQuery');
+		}
 
 		// Get server
 		$server = new Rpc2\Server;
