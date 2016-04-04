@@ -113,13 +113,22 @@ class User extends \Nette\Object {
 		$device = !isset($values['device'])?:$values['device'];
 		unset($values['device']);
 		$account = $this->collection->createNew($values);
-		// grant free60 subs
-		$this->subscriptionsCollection
-			->setFree($account->id, $account->country_code, $device);
+
+		// handle successful signup events
+		$this->_signupSuccess($account, $device);
 
 		// login the new user
 		return $this->login($email, $password, $facebook_id);
 	}
+
+
+	/**
+	 * Event handler for successful signup process
+	 *
+	 * @param \Argo22\Modules\Core\Api\Account\Model	$account
+	 * @param string									$device
+	 */
+	protected function _signupSuccess($account, $device){}
 
 
 	/**
