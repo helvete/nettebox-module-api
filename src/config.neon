@@ -27,3 +27,13 @@ services:
 	apiUser:
 		class: Argo22\Modules\Core\Api\Account\User
 		inject: yes
+
+# Move structure like this into application config and adjust G key and A cert locations
+#	notificationApiConfig:
+#		googleData: "secret_application_gcm_token"
+#		appleData:
+#			# production certificate (absolute path)
+#			0: "/home/user/repo/certificates/server_certificates_prod.pem"
+#			# sandbox certificate (absolute path)
+#			1: "/home/user/repo/certificates/server_certificates_dev.pem"
+#			entrust: "/home/user/repo/certificates/entrust_root_certification_authority.pem"
