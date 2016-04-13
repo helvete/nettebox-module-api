@@ -87,7 +87,7 @@ class PushNotifier extends \Nette\Object {
 	 * ]
 	 *
 	 * @param  array	$notifications
-	 * @return void
+	 * @return array
 	 */
 	public function send($notifications)
 	{
@@ -107,6 +107,7 @@ class PushNotifier extends \Nette\Object {
 	 * Send pack of android messages
 	 *
 	 * @param  array	$notifications
+	 * @return array
 	 */
 	public function sendAndroid($notifications)
 	{
