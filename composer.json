@@ -29,6 +29,7 @@
 		"flame/modules": "^2.3",
 		"flame/module-installer": "@dev",
 		"ircmaxell/password-compat": "^1.0",
-		"argo22/phinx": "dev-0.4.x-dev"
+		"argo22/phinx": "dev-0.4.x-dev",
+		"geoip2/geoip2": "~2.0"
 	}
 }
