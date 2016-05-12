@@ -11,9 +11,9 @@ services:
 		setup:
 			- $geoIp( @Argo22\Modules\Core\Api\GeoIp )
 
-	- Argo22\Modules\Core\Api\AccountNotification\IModelFactory
+	- Argo22\Modules\Core\Api\AccountDevice\IModelFactory
 	devicesCollection:
-		factory: Argo22\Modules\Core\Api\AccountNotification\Collection('account_notification', @Argo22\Modules\Core\Api\AccountNotification\IModelFactory)
+		factory: Argo22\Modules\Core\Api\AccountDevice\Collection('account_device', @Argo22\Modules\Core\Api\AccountDevice\IModelFactory)
 
 	passwordRecovery: Argo22\Modules\Core\User\PasswordRecovery(@Argo22\Modules\Core\Api\Account\Collection)
 
