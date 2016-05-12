@@ -21,8 +21,8 @@ class User extends \Nette\Object {
 	var $collection;
 	/** @var Session @inject **/
 	var $apiSession;
-	/** @var \Argo22\Modules\Core\Api\AccountNotification\Collection @inject **/
-	var $accountNotification;
+	/** @var \Argo22\Modules\Core\Api\AccountDevice\Collection @inject **/
+	var $accountDevice;
 	/** @var \Argo22\Modules\Core\Email\Collection @inject **/
 	var $emailCollection;
 	/** @var \Argo22\Modules\Core\User\PasswordRecovery @inject **/
@@ -335,7 +335,7 @@ class User extends \Nette\Object {
 			: $this->_getBaseUrl() . $detail['avatar_url'];
 
 		if (!is_null($device_hash)) {
-			$device = $this->accountNotification->getOneFiltered(
+			$device = $this->accountDevice->getOneFiltered(
 				'active',
 				array('hash' => $device_hash)
 			);
@@ -436,7 +436,7 @@ class User extends \Nette\Object {
 			}
 		}
 		// does record having this hash exist?
-		$devicePresent = $this->accountNotification->getOneFiltered(
+		$devicePresent = $this->accountDevice->getOneFiltered(
 			'*',
 			array('hash' => $hash)
 		);
@@ -452,7 +452,7 @@ class User extends \Nette\Object {
 		}
 
 		// insert a new record
-		$this->accountNotification->insert(array(
+		$this->accountDevice->insert(array(
 			'account_id' => $account->id,
 			'hash' => $hash,
 			'active' => $active,
